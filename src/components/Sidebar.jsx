@@ -81,12 +81,12 @@ const Sidebar = ({ role, userEmail }) => {
           <ListItemText primary="Dashboard" />
         </ListItemButton>
         {/* <ListItemButton onClick={() => navigate("/chefs")}> */}
-        <ListItemButton onClick={() => navigate("/chefs", { state: { role, userEmail } })}>
+        {/* <ListItemButton onClick={() => navigate("/chefs", { state: { role, userEmail } })}>
           <ListItemText primary="Chefs" />
         </ListItemButton>
         <ListItemButton onClick={() => navigate("/violations")}>
           <ListItemText primary="Violations" />
-        </ListItemButton>
+        </ListItemButton> */}
         {/* <ListItemButton onClick={() => navigate("/live-monitoring")}>
           <ListItemText primary="Live Monitoring" />
         </ListItemButton> */}

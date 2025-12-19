@@ -3089,6 +3089,401 @@
 // }
 
 
+// import React, { useState, useEffect } from "react";
+// import {
+//   Box,
+//   Paper,
+//   Typography,
+//   Button,
+//   TextField,
+//   Dialog,
+//   DialogTitle,
+//   DialogContent,
+//   DialogActions,
+//   MenuItem,
+//   Grid,
+//   Avatar
+// } from "@mui/material";
+// import { useSnackbar } from "notistack";
+
+// export default function AddUser() {
+//   const [open, setOpen] = useState(false);
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     email: "",
+//     password: "",
+//     role: "",
+//     image: null,
+//   });
+
+//   const [users, setUsers] = useState(() => {
+//     const savedUsers = localStorage.getItem("users");
+//     return savedUsers ? JSON.parse(savedUsers) : [];
+//   });
+
+//   const { enqueueSnackbar } = useSnackbar();
+//   const token = localStorage.getItem("token");
+
+//   useEffect(() => {
+//     localStorage.setItem("users", JSON.stringify(users));
+//   }, [users]);
+
+//   const handleOpen = () => {
+//     setFormData({ name: "", email: "", password: "", role: "", image: null });
+//     setOpen(true);
+//   };
+
+//   const handleClose = () => setOpen(false);
+
+//   const handleChange = (e) => {
+//     const { name, value, files } = e.target;
+//     if (name === "image") {
+//       setFormData({ ...formData, image: files[0] });
+//     } else {
+//       setFormData({ ...formData, [name]: value });
+//     }
+//   };
+
+//   const handleSave = async () => {
+//     if (!token) {
+//       enqueueSnackbar("You must be logged in to add a user", { variant: "error" });
+//       return;
+//     }
+
+//     if (!formData.name || !formData.email || !formData.password || !formData.role || !formData.image) {
+//       enqueueSnackbar("Please fill all required fields and select an image", { variant: "warning" });
+//       return;
+//     }
+
+//     const data = new FormData();
+//     data.append("name", formData.name);
+//     data.append("email", formData.email);
+//     data.append("password", formData.password);
+//     data.append("role", formData.role);
+//     data.append("image", formData.image);
+
+//     try {
+//       const res = await fetch("https://marowael-depi.hf.space/signup", {
+//         method: "POST",
+//         headers: { Authorization: `Bearer ${token}` },
+//         body: data,
+//       });
+
+//       const result = await res.json();
+//       console.log("Signup response Status:", res.status);
+//       console.log("Signup response Body:", JSON.stringify(result, null, 2));
+
+//       if (!res.ok) {
+//         enqueueSnackbar(result.detail?.[0]?.msg || result.detail || "Failed to add user", { variant: "error" });
+//         return;
+//       }
+
+//       enqueueSnackbar("User added successfully!", { variant: "success" });
+//       handleClose();
+
+//       // قراءة الصورة وتحويلها لـ base64 لعرضها محليًا
+//       const reader = new FileReader();
+//       reader.onload = () => {
+//         const newUser = {
+//           name: formData.name,
+//           email: formData.email,
+//           role: formData.role,
+//           imageUrl: reader.result,
+//         };
+//         setUsers(prev => [...prev, newUser]);
+//       };
+//       reader.readAsDataURL(formData.image);
+
+//     } catch (error) {
+//       console.error("Signup Catch Error:", error);
+//       enqueueSnackbar("Error adding user", { variant: "error" });
+//     }
+//   };
+
+//   return (
+//     <Box sx={{ p: 3 }}>
+//       <Button
+//         variant="contained"
+//         sx={{ backgroundColor: "#9d0706", "&:hover": { backgroundColor: "#b68866" } }}
+//         onClick={handleOpen}
+//       >
+//         Add User
+//       </Button>
+
+//       <Dialog open={open} onClose={handleClose} fullWidth>
+//         <DialogTitle>Add User</DialogTitle>
+//         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+//           <TextField label="Name" name="name" value={formData.name} onChange={handleChange} required />
+//           <TextField label="Email" name="email" value={formData.email} onChange={handleChange} required />
+//           <TextField label="Password" name="password" type="password" value={formData.password} onChange={handleChange} required />
+//           <TextField
+//             select
+//             label="Role"
+//             name="role"
+//             value={formData.role}
+//             onChange={handleChange}
+//             required
+//           >
+//             <MenuItem value="chief">Chief</MenuItem>
+//             <MenuItem value="admin">Admin</MenuItem>
+//           </TextField>
+
+//           <Button 
+//             variant="contained" 
+//             component="label"
+//             sx={{ backgroundColor: "#ffcb99", color: "#191725", "&:hover": { backgroundColor: "#b68866" } }}
+//           >
+//             Upload Image
+//             <input type="file" name="image" hidden onChange={handleChange} accept="image/*" />
+//           </Button>
+//           {formData.image && <Typography variant="body2">Selected: {formData.image.name}</Typography>}
+//         </DialogContent>
+//         <DialogActions>
+//           <Button onClick={handleClose}>Cancel</Button>
+//           <Button
+//             variant="contained"
+//             sx={{ backgroundColor: "#9d0706", "&:hover": { backgroundColor: "#b68866" } }}
+//             onClick={handleSave}
+//           >
+//             Save
+//           </Button>
+//         </DialogActions>
+//       </Dialog>
+
+//       <Box sx={{ mt: 4 }}>
+//         <Grid container spacing={3}>
+//           {users.map((user, index) => (
+//             <Grid item key={index} xs={12} sm={6} md={4}>
+//               <Paper
+//                 sx={{
+//                   p: 3,
+//                   display: "flex",
+//                   flexDirection: "column",
+//                   alignItems: "center",
+//                   gap: 2,
+//                   boxShadow: 6,
+//                   borderRadius: 3,
+//                   background: "linear-gradient(135deg, #ffcb99, #ffe5cc )",
+//                   transition: "transform 0.3s, box-shadow 0.3s",
+//                   "&:hover": {
+//                     transform: "scale(1.05)",
+//                     boxShadow: 12,
+//                   }
+//                 }}
+//               >
+//                 <Avatar src={user.imageUrl} alt={user.name} sx={{ width: 100, height: 100 }} />
+//                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>{user.name}</Typography>
+//                 <Typography variant="body1" sx={{ color: "#555" }}>{user.email}</Typography>
+//                 <Typography variant="body2" sx={{ color: "#888", textTransform: "capitalize" }}>{user.role}</Typography>
+//               </Paper>
+//             </Grid>
+//           ))}
+//         </Grid>
+//       </Box>
+//     </Box>
+//   );
+// }
+
+// import React, { useState, useEffect } from "react";
+// import {
+//   Box,
+//   Paper,
+//   Typography,
+//   Button,
+//   TextField,
+//   Dialog,
+//   DialogTitle,
+//   DialogContent,
+//   DialogActions,
+//   MenuItem,
+//   Grid,
+//   Avatar
+// } from "@mui/material";
+// import { useSnackbar } from "notistack";
+
+// export default function AddUser() {
+//   const [open, setOpen] = useState(false);
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     email: "",
+//     password: "",
+//     role: "",
+//     image: null,
+//   });
+//   const [users, setUsers] = useState([]);
+//   const { enqueueSnackbar } = useSnackbar();
+//   const token = localStorage.getItem("token"); // يجب أن يكون التوكن موجود بعد login
+
+//   // -------------------- Fetch chefs from server --------------------
+//   const fetchUsers = async () => {
+//     if (!token) return;
+//     try {
+//       const res = await fetch("https://marowael-depi.hf.space/chiefs", {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       if (!res.ok) throw new Error("Failed to fetch users");
+//       const data = await res.json();
+//       setUsers(data);
+//     } catch (err) {
+//       enqueueSnackbar(err.message, { variant: "error" });
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchUsers();
+//   }, [token]);
+
+//   const handleOpen = () => {
+//     setFormData({ name: "", email: "", password: "", role: "", image: null });
+//     setOpen(true);
+//   };
+
+//   const handleClose = () => setOpen(false);
+
+//   const handleChange = (e) => {
+//     const { name, value, files } = e.target;
+//     if (name === "image") {
+//       setFormData({ ...formData, image: files[0] });
+//     } else {
+//       setFormData({ ...formData, [name]: value });
+//     }
+//   };
+
+//   const handleSave = async () => {
+//     if (!token) {
+//       enqueueSnackbar("You must be logged in to add a user", { variant: "error" });
+//       return;
+//     }
+
+//     if (!formData.name || !formData.email || !formData.password || !formData.role || !formData.image) {
+//       enqueueSnackbar("Please fill all required fields and select an image", { variant: "warning" });
+//       return;
+//     }
+
+//     const data = new FormData();
+//     data.append("name", formData.name);
+//     data.append("email", formData.email);
+//     data.append("password", formData.password);
+//     data.append("role", formData.role);
+//     data.append("image", formData.image);
+
+//     try {
+//       const res = await fetch("https://marowael-depi.hf.space/signup", {
+//         method: "POST",
+//         headers: { Authorization: `Bearer ${token}` },
+//         body: data,
+//       });
+
+//       const result = await res.json();
+
+//       if (!res.ok) {
+//         enqueueSnackbar(result.detail?.[0]?.msg || result.detail || "Failed to add user", { variant: "error" });
+//         return;
+//       }
+
+//       enqueueSnackbar("User added successfully!", { variant: "success" });
+//       handleClose();
+//       fetchUsers(); // ✅ إعادة جلب الطباخين بعد الإضافة
+
+//     } catch (error) {
+//       console.error("Signup Catch Error:", error);
+//       enqueueSnackbar("Error adding user", { variant: "error" });
+//     }
+//   };
+
+//   return (
+//     <Box sx={{ p: 3 }}>
+//       <Button
+//         variant="contained"
+//         sx={{ backgroundColor: "#9d0706", "&:hover": { backgroundColor: "#b68866" } }}
+//         onClick={handleOpen}
+//       >
+//         Add User
+//       </Button>
+
+//       <Dialog open={open} onClose={handleClose} fullWidth>
+//         <DialogTitle>Add User</DialogTitle>
+//         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+//           <TextField label="Name" name="name" value={formData.name} onChange={handleChange} required />
+//           <TextField label="Email" name="email" value={formData.email} onChange={handleChange} required />
+//           <TextField label="Password" name="password" type="password" value={formData.password} onChange={handleChange} required />
+//           <TextField select label="Role" name="role" value={formData.role} onChange={handleChange} required>
+//             <MenuItem value="chief">Chief</MenuItem>
+//             <MenuItem value="admin">Admin</MenuItem>
+//           </TextField>
+
+//           <Button
+//             variant="contained"
+//             component="label"
+//             sx={{ backgroundColor: "#ffcb99", color: "#191725", "&:hover": { backgroundColor: "#b68866" } }}
+//           >
+//             Upload Image
+//             <input type="file" name="image" hidden onChange={handleChange} accept="image/*" />
+//           </Button>
+//           {formData.image && <Typography variant="body2">Selected: {formData.image.name}</Typography>}
+//         </DialogContent>
+//         <DialogActions>
+//           <Button onClick={handleClose}>Cancel</Button>
+//           <Button
+//             variant="contained"
+//             sx={{ backgroundColor: "#9d0706", "&:hover": { backgroundColor: "#b68866" } }}
+//             onClick={handleSave}
+//           >
+//             Save
+//           </Button>
+//         </DialogActions>
+//       </Dialog>
+
+//       <Box sx={{ mt: 4 }}>
+//        <Grid container spacing={3}>
+//   {Array.isArray(users) && users.length > 0 ? (
+//     users.map((user, index) => (
+//       <Grid item key={index} xs={12} sm={6} md={4}>
+//         <Paper
+//           sx={{
+//             p: 3,
+//             display: "flex",
+//             flexDirection: "column",
+//             alignItems: "center",
+//             gap: 2,
+//             boxShadow: 6,
+//             borderRadius: 3,
+//             background: "linear-gradient(135deg, #ffcb99, #ffe5cc )",
+//             transition: "transform 0.3s, box-shadow 0.3s",
+//             "&:hover": {
+//               transform: "scale(1.05)",
+//               boxShadow: 12,
+//             }
+//           }}
+//         >
+//           <Avatar 
+//             src={user.imageUrl || ""} 
+//             alt={user.name || "User"} 
+//             sx={{ width: 100, height: 100 }} 
+//           />
+//           <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+//             {user.name || "No Name"}
+//           </Typography>
+//           <Typography variant="body1" sx={{ color: "#555" }}>
+//             {user.email || "No Email"}
+//           </Typography>
+//           <Typography variant="body2" sx={{ color: "#888", textTransform: "capitalize" }}>
+//             {user.role || "No Role"}
+//           </Typography>
+//         </Paper>
+//       </Grid>
+//     ))
+//   ) : (
+//     <Typography sx={{ mt: 2 }}>No users found.</Typography>
+//   )}
+// </Grid>
+
+//       </Box>
+//     </Box>
+//   );
+// }
+
+
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -3106,6 +3501,8 @@ import {
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 
+const API_BASE = "https://marowael-depi.hf.space";
+
 export default function AddUser() {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -3115,19 +3512,36 @@ export default function AddUser() {
     role: "",
     image: null,
   });
-
-  const [users, setUsers] = useState(() => {
-    const savedUsers = localStorage.getItem("users");
-    return savedUsers ? JSON.parse(savedUsers) : [];
-  });
-
+  const [users, setUsers] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
   const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    localStorage.setItem("users", JSON.stringify(users));
-  }, [users]);
+  /* -------------------- Fetch Chiefs -------------------- */
+  const fetchUsers = async () => {
+    if (!token) return;
 
+    try {
+      const res = await fetch(`${API_BASE}/chiefs`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch users");
+
+      const data = await res.json();
+      setUsers(data.chiefs || []); // ✅ correct response shape
+
+    } catch (err) {
+      enqueueSnackbar(err.message, { variant: "error" });
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [token]);
+
+  /* -------------------- Dialog Controls -------------------- */
   const handleOpen = () => {
     setFormData({ name: "", email: "", password: "", role: "", image: null });
     setOpen(true);
@@ -3135,8 +3549,10 @@ export default function AddUser() {
 
   const handleClose = () => setOpen(false);
 
+  /* -------------------- Form Change -------------------- */
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
     if (name === "image") {
       setFormData({ ...formData, image: files[0] });
     } else {
@@ -3144,14 +3560,15 @@ export default function AddUser() {
     }
   };
 
+  /* -------------------- Save User -------------------- */
   const handleSave = async () => {
     if (!token) {
-      enqueueSnackbar("You must be logged in to add a user", { variant: "error" });
+      enqueueSnackbar("You must be logged in", { variant: "error" });
       return;
     }
 
     if (!formData.name || !formData.email || !formData.password || !formData.role || !formData.image) {
-      enqueueSnackbar("Please fill all required fields and select an image", { variant: "warning" });
+      enqueueSnackbar("Please fill all fields and select an image", { variant: "warning" });
       return;
     }
 
@@ -3163,43 +3580,34 @@ export default function AddUser() {
     data.append("image", formData.image);
 
     try {
-      const res = await fetch("https://depi-final-project-production.up.railway.app/auth/signup", {
+      const res = await fetch(`${API_BASE}/signup`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: data,
       });
 
       const result = await res.json();
-      console.log("Signup response Status:", res.status);
-      console.log("Signup response Body:", JSON.stringify(result, null, 2));
 
       if (!res.ok) {
-        enqueueSnackbar(result.detail?.[0]?.msg || result.detail || "Failed to add user", { variant: "error" });
+        enqueueSnackbar(
+          result.detail?.[0]?.msg || result.detail || "Failed to add user",
+          { variant: "error" }
+        );
         return;
       }
 
       enqueueSnackbar("User added successfully!", { variant: "success" });
       handleClose();
+      fetchUsers(); // ✅ refresh list
 
-      // قراءة الصورة وتحويلها لـ base64 لعرضها محليًا
-      const reader = new FileReader();
-      reader.onload = () => {
-        const newUser = {
-          name: formData.name,
-          email: formData.email,
-          role: formData.role,
-          imageUrl: reader.result,
-        };
-        setUsers(prev => [...prev, newUser]);
-      };
-      reader.readAsDataURL(formData.image);
-
-    } catch (error) {
-      console.error("Signup Catch Error:", error);
+    } catch (err) {
       enqueueSnackbar("Error adding user", { variant: "error" });
     }
   };
 
+  /* -------------------- UI -------------------- */
   return (
     <Box sx={{ p: 3 }}>
       <Button
@@ -3210,34 +3618,34 @@ export default function AddUser() {
         Add User
       </Button>
 
+      {/* -------- Dialog -------- */}
       <Dialog open={open} onClose={handleClose} fullWidth>
         <DialogTitle>Add User</DialogTitle>
+
         <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
           <TextField label="Name" name="name" value={formData.name} onChange={handleChange} required />
           <TextField label="Email" name="email" value={formData.email} onChange={handleChange} required />
           <TextField label="Password" name="password" type="password" value={formData.password} onChange={handleChange} required />
-          <TextField
-            select
-            label="Role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            required
-          >
+
+          <TextField select label="Role" name="role" value={formData.role} onChange={handleChange} required>
             <MenuItem value="chief">Chief</MenuItem>
             <MenuItem value="admin">Admin</MenuItem>
           </TextField>
 
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             component="label"
             sx={{ backgroundColor: "#ffcb99", color: "#191725", "&:hover": { backgroundColor: "#b68866" } }}
           >
             Upload Image
-            <input type="file" name="image" hidden onChange={handleChange} accept="image/*" />
+            <input type="file" name="image" hidden accept="image/*" onChange={handleChange} />
           </Button>
-          {formData.image && <Typography variant="body2">Selected: {formData.image.name}</Typography>}
+
+          {formData.image && (
+            <Typography variant="body2">Selected: {formData.image.name}</Typography>
+          )}
         </DialogContent>
+
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
           <Button
@@ -3250,34 +3658,52 @@ export default function AddUser() {
         </DialogActions>
       </Dialog>
 
+      {/* -------- Users Grid -------- */}
       <Box sx={{ mt: 4 }}>
         <Grid container spacing={3}>
-          {users.map((user, index) => (
-            <Grid item key={index} xs={12} sm={6} md={4}>
-              <Paper
-                sx={{
-                  p: 3,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 2,
-                  boxShadow: 6,
-                  borderRadius: 3,
-                  background: "linear-gradient(135deg, #ffcb99, #ffe5cc )",
-                  transition: "transform 0.3s, box-shadow 0.3s",
-                  "&:hover": {
-                    transform: "scale(1.05)",
-                    boxShadow: 12,
-                  }
-                }}
-              >
-                <Avatar src={user.imageUrl} alt={user.name} sx={{ width: 100, height: 100 }} />
-                <Typography variant="h6" sx={{ fontWeight: "bold" }}>{user.name}</Typography>
-                <Typography variant="body1" sx={{ color: "#555" }}>{user.email}</Typography>
-                <Typography variant="body2" sx={{ color: "#888", textTransform: "capitalize" }}>{user.role}</Typography>
-              </Paper>
-            </Grid>
-          ))}
+          {users.length > 0 ? (
+            users.map((user) => (
+              <Grid item key={user.id} xs={12} sm={6} md={4}>
+                <Paper
+                  sx={{
+                    p: 3,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 2,
+                    boxShadow: 6,
+                    borderRadius: 3,
+                    background: "linear-gradient(135deg, #ffcb99, #ffe5cc)",
+                    transition: "0.3s",
+                    "&:hover": {
+                      transform: "scale(1.05)",
+                      boxShadow: 12,
+                    }
+                  }}
+                >
+                  <Avatar
+                    src={`${API_BASE}/uploads/${user.image_url}`}
+                    alt={user.name}
+                    sx={{ width: 100, height: 100 }}
+                  />
+
+                  <Typography variant="h6" fontWeight="bold">
+                    {user.name}
+                  </Typography>
+
+                  <Typography variant="body1" color="text.secondary">
+                    {user.email}
+                  </Typography>
+
+                  <Typography variant="body2" sx={{ textTransform: "capitalize", color: "#888" }}>
+                    {user.role}
+                  </Typography>
+                </Paper>
+              </Grid>
+            ))
+          ) : (
+            <Typography>No users found.</Typography>
+          )}
         </Grid>
       </Box>
     </Box>

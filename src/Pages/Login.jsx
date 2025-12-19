@@ -1186,7 +1186,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("https://depi-final-project-production.up.railway.app/auth/login", {
+      const response = await fetch("https://marowael-depi.hf.space/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

@@ -1261,7 +1261,7 @@ export default function ChefPerformance() {
   useEffect(() => {
     const fetchChefs = async () => {
       try {
-        const res = await fetch("https://depi-final-project-production.up.railway.app/auth/chiefs", {
+        const res = await fetch("https://marowael-depi.hf.space/chiefs", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -1358,82 +1358,37 @@ export default function ChefPerformance() {
       </Paper>
 
       <Drawer
-        anchor="right"
-        open={Boolean(selectedChef)}
-        onClose={() => setSelectedChef(null)}
-        variant="persistent"
-        PaperProps={{ sx: { width: { xs: "100%", sm: "auto" }, p: 2, backgroundColor: "#ffe5cc" } }}
+  anchor="right"
+  open={Boolean(selectedChef)}
+  onClose={() => setSelectedChef(null)}
+  variant="persistent"
+  PaperProps={{ sx: { width: { xs: "100%", sm: "auto" }, p: 2, backgroundColor: "#ffe5cc" } }}
+>
+  {selectedChef && (
+    <Box>
+      <Typography variant="h5" sx={{ fontWeight: "bold", mb: 1 }}>
+        {selectedChef.name}
+      </Typography>
+
+      <Typography sx={{ mb: 1 }}>
+        Age: {selectedChef.age || Math.floor(Math.random() * 20) + 20}
+      </Typography>
+
+      <Typography sx={{ mb: 1 }}>
+        Role: {selectedChef.role || "Chef"}
+      </Typography>
+
+      <Button
+        variant="contained"
+        sx={{ mt: 2, backgroundColor: "#b68866", "&:hover": { backgroundColor: "#9d0706" } }}
+        onClick={() => setSelectedChef(null)}
       >
-        {selectedChef && (
-          <Box>
-            {selectedChef.image_url && (
-              <Avatar
-                src={`https://bla-hvdf9iih.b4a.run/auth/images/${selectedChef.image_url}`}
-                sx={{ width: 80, height: 80, mb: 2 }}
-              />
-            )}
-            <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2, color: "#9d0706" }}>
-              {selectedChef.name}
-            </Typography>
+        Close
+      </Button>
+    </Box>
+  )}
+</Drawer>
 
-            <Typography sx={{ fontWeight: "bold" }}>Rating:</Typography>
-            <Typography sx={{ fontSize: "1.5rem", fontWeight: "bold", color: "#9d0706" }}>
-              {"⭐".repeat(selectedChef.rating)}
-            </Typography>
-
-            <Typography sx={{ mt: 2, fontWeight: "bold" }}>
-              Number of Violations: {selectedChef.violations}
-            </Typography>
-            <Typography sx={{ fontWeight: "bold" }}>
-              Types of Violations: {selectedChef.types.join(", ")}
-            </Typography>
-
-            <Typography sx={{ mt: 2, fontWeight: "bold" }}>Last 7 Days Progress:</Typography>
-            <Paper sx={{ p: 1, backgroundColor: "#f6d9d1" }}>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart
-                  data={selectedChef.weeklyProgress.map((v, i) => ({ day: `Day ${i + 1}`, value: v }))}
-                >
-                  <XAxis dataKey="day" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#9d0706" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Paper>
-
-            <Typography sx={{ mt: 2, fontWeight: "bold" }}>Achievements:</Typography>
-            {selectedChef.achievements.length > 0 ? (
-              <List>
-                {selectedChef.achievements.map((ach, idx) => (
-                  <ListItemText key={idx} primary={`🏆 ${ach}`} />
-                ))}
-              </List>
-            ) : (
-              <Typography>No achievements yet</Typography>
-            )}
-
-            <Typography sx={{ mt: 2, fontWeight: "bold" }}>Recommended Training:</Typography>
-            {selectedChef.recommendedTraining.length > 0 ? (
-              <List>
-                {selectedChef.recommendedTraining.map((tr, idx) => (
-                  <ListItemText key={idx} primary={`📚 ${tr}`} />
-                ))}
-              </List>
-            ) : (
-              <Typography>No trainings recommended</Typography>
-            )}
-
-            <Button
-              variant="contained"
-              sx={{ mt: 2, backgroundColor: "#b68866", "&:hover": { backgroundColor: "#9d0706" } }}
-              onClick={() => setSelectedChef(null)}
-            >
-              Close
-            </Button>
-          </Box>
-        )}
-      </Drawer>
     </Box>
   );
 }

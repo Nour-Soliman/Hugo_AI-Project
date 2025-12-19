@@ -1450,6 +1450,580 @@
 // };
 
 // export default VideoUploadAnalysis;
+
+// import React, { useState } from "react";
+// import {
+//   Box, Grid, Typography, Paper,
+//   Table, TableBody, TableCell, TableHead, TableRow,
+//   TextField, Button, LinearProgress
+// } from "@mui/material";
+
+// const VideoUploadAnalysis = () => {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [token, setToken] = useState("");
+//   const [videoFile, setVideoFile] = useState(null);
+//   const [videoURL, setVideoURL] = useState(null);
+//   const [analysisStarted, setAnalysisStarted] = useState(false);
+//   const [progress, setProgress] = useState(0);
+//   const [violations, setViolations] = useState([]);
+//   const [errorMessage, setErrorMessage] = useState("");
+
+//   // -------------------- Login --------------------
+//   const handleLogin = async () => {
+//     setErrorMessage("");
+//     if (!email || !password) {
+//       setErrorMessage("Please enter email and password.");
+//       return;
+//     }
+
+//     try {
+//       const response = await fetch(
+//         "https://depi-final-project-production.up.railway.app/auth/login",
+//         {
+//           method: "POST",
+//           headers: { "Content-Type": "application/json" },
+//           body: JSON.stringify({ email, password }),
+//         }
+//       );
+
+//       if (!response.ok) {
+//         const text = await response.text();
+//         throw new Error(`Login failed: ${response.status} ${text}`);
+//       }
+
+//       const data = await response.json();
+//       console.log("Login response:", data);
+//       setToken(data.access_token);
+//       setErrorMessage("Login successful!");
+//     } catch (err) {
+//       console.error(err);
+//       setErrorMessage(err.message);
+//     }
+//   };
+
+//   // -------------------- Handle video upload --------------------
+//   const handleUpload = (e) => {
+//     const file = e.target.files[0];
+//     if (file) {
+//       setVideoFile(file);
+//       setVideoURL(URL.createObjectURL(file));
+//       setViolations([]);
+//       setAnalysisStarted(false);
+//       setProgress(0);
+//       setErrorMessage("");
+//     }
+//   };
+
+//   // -------------------- Start analysis --------------------
+//   const startAnalysis = async () => {
+//     if (!videoFile) {
+//       setErrorMessage("Please upload a video first.");
+//       return;
+//     }
+//     if (!token) {
+//       setErrorMessage("Please login first.");
+//       return;
+//     }
+
+//     setAnalysisStarted(true);
+//     setProgress(0);
+//     setViolations([]);
+//     setErrorMessage("");
+
+//     const formData = new FormData();
+//     formData.append("video", videoFile);
+
+//     // Start simulated progress
+//     let prog = 0;
+//     const interval = setInterval(() => {
+//       prog += 5;
+//       if (prog > 95) prog = 95; // وقف قبل الرد الفعلي
+//       setProgress(prog);
+//     }, 200);
+
+//     try {
+//       const response = await fetch(
+//         "https://depi-final-project-production.up.railway.app/auth/analyze-video",
+//         {
+//           method: "POST",
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//           },
+//           body: formData,
+//         }
+//       );
+
+//       if (!response.ok) {
+//         const text = await response.text();
+//         throw new Error(`Server responded with status ${response.status}: ${text}`);
+//       }
+
+//       const data = await response.json();
+//       console.log("Backend response:", data);
+
+//       clearInterval(interval);
+//       setProgress(100);
+
+//       // تحويل report_data للجدول
+//       const violationsFromBackend = Object.entries(data.report_data || {})
+//         .filter(([key]) => key !== "total_frames_processes")
+//         .map(([key, value], idx) => ({
+//           id: idx + 1,
+//           type: key,
+//           count: value.count,
+//           detected: value.detected ? "Yes" : "No",
+//           confidence: value.average_confidence,
+//         }));
+
+//       setViolations(violationsFromBackend);
+//     } catch (err) {
+//       clearInterval(interval);
+//       console.error(err);
+//       setErrorMessage("Error uploading or analyzing video: " + err.message);
+//       setAnalysisStarted(false);
+//       setProgress(0);
+//     }
+//   };
+
+//   const handleRefresh = () => window.location.reload();
+//   const handleResetAnalysis = () => {
+//     setAnalysisStarted(false);
+//     setProgress(0);
+//     setViolations([]);
+//     setErrorMessage("");
+//   };
+
+//   // -------------------- Render --------------------
+//   return (
+//     <Box sx={{ minHeight: "100vh", p: 3, backgroundColor: "#ffcb99" }}>
+//       {/* Header */}
+//       <Paper sx={{ p: 2, mb: 3, display: "flex", justifyContent: "space-between", backgroundColor: "#191725", color: "#ffcb99", borderRadius: 2 }}>
+//         <Typography variant="h5" sx={{ fontWeight: "bold" }}>Video Upload & Analysis</Typography>
+//         <Box sx={{ display: "flex", gap: 1 }}>
+//           <Button variant="contained" sx={{ backgroundColor: "#b68866"  ,"&:hover": { backgroundColor: "#9d0706" } }} onClick={handleRefresh}>Refresh</Button>
+//           <Button variant="contained" sx={{ backgroundColor: "#b68866" ,"&:hover": { backgroundColor: "#9d0706" } }} onClick={handleResetAnalysis}>Reset Analysis</Button>
+//         </Box>
+//       </Paper>
+
+//       {/* Login */}
+//       {!token && (
+//         <Paper sx={{ p: 2, mb: 3, display: "flex", gap: 2, flexWrap: "wrap", backgroundColor: "#ffe5cc" }}>
+//           <TextField
+//   label="Email"
+//   value={email}
+//   onChange={e => setEmail(e.target.value)}
+//   variant="outlined"
+//   sx={{
+//     "& .MuiOutlinedInput-root": {
+//       "& fieldset": { borderColor: "#9d0706", borderWidth: 2 },
+//       "&:hover fieldset": { borderColor: "#b68866" },
+//       "&.Mui-focused fieldset": { borderColor: "#9d0706" }, // لون البوردر عند التركيز
+//     },
+//     "& .MuiInputLabel-root": {
+//       "&.Mui-focused": { color: "#9d0706" }, // لون اللابل عند التركيز
+//     },
+//   }}
+// />
+
+// <TextField
+//   label="Password"
+//   type="password"
+//   value={password}
+//   onChange={e => setPassword(e.target.value)}
+//   variant="outlined"
+//   sx={{
+//     "& .MuiOutlinedInput-root": {
+//       "& fieldset": { borderColor: "#9d0706", borderWidth: 2 },
+//       "&:hover fieldset": { borderColor: "#b68866" },
+//       "&.Mui-focused fieldset": { borderColor: "#9d0706" },
+//     },
+//     "& .MuiInputLabel-root": {
+//       "&.Mui-focused": { color: "#9d0706" },
+//     },
+//   }}
+// />
+
+//           <Button variant="contained" sx={{ backgroundColor: "#9d0706" }} onClick={handleLogin}>Login</Button>
+//         </Paper>
+//       )}
+
+//       {/* Error message */}
+//       {errorMessage && <Typography sx={{ color: "red", mb: 2 }}>{errorMessage}</Typography>}
+
+//       {/* Upload & Start */}
+//       {token && (
+//         <Paper sx={{ p: 2, mb: 4, display: "flex", gap: 2, backgroundColor: "#ffe5cc" }}>
+//           <Button variant="contained" component="label" sx={{ backgroundColor: "#9d0706" }}>
+//             Upload Video
+//             <input type="file" hidden accept="video/*" onChange={handleUpload} />
+//           </Button>
+//           {videoFile && <Typography>{videoFile.name}</Typography>}
+//           <Button variant="contained" sx={{ backgroundColor: "#9d0706" }} onClick={startAnalysis}>Start Analysis</Button>
+//         </Paper>
+//       )}
+
+//       {/* Video Preview */}
+//       {videoURL && <Paper sx={{ mb: 4, p: 1 }}><video src={videoURL} controls autoPlay muted style={{ width: "100%", borderRadius: "10px" }} /></Paper>}
+
+//       {/* Progress */}
+//       {analysisStarted && progress < 100 && (
+//         <Box sx={{ mb: 3 }}>
+//           <LinearProgress variant="determinate" value={progress} />
+//           <Typography sx={{ mt: 1 }}>Analysis Progress: {progress}%</Typography>
+//         </Box>
+//       )}
+
+//       {/* Table */}
+// {violations.length > 0 && (
+//   <Paper>
+//     <Table sx={{ backgroundColor: "#191725" }}>
+//       <TableHead>
+//         <TableRow>
+//           <TableCell sx={{ color: "#ffe5cc" }}>Type</TableCell>
+//           <TableCell sx={{ color: "#ffe5cc" }}>Detected</TableCell>
+//           <TableCell sx={{ color: "#ffe5cc" }}>Confidence</TableCell>
+//         </TableRow>
+//       </TableHead>
+
+//       <TableBody>
+//         {/* Rows الأساسية */}
+//         {violations.slice(0, -1).map((v) => (
+//           <TableRow key={v.id}>
+//             <TableCell sx={{ color: "#b68866" }}>{v.type}</TableCell>
+//             <TableCell sx={{ color: "#ffffff" }}>{v.detected}</TableCell>
+//             <TableCell sx={{ color: "#ffffff" }}>{v.confidence}</TableCell>
+//           </TableRow>
+//         ))}
+
+//         {/* صف total_frames_processed */}
+//         <TableRow>
+//           <TableCell sx={{ color: "#b68866" }}>Total Frames Processed</TableCell>
+//           <TableCell sx={{ color: "#ffffff" }}>
+//             {reportData.total_frames_processed}
+//           </TableCell>
+//           <TableCell sx={{ color: "#ffffff" }}>—</TableCell>
+//         </TableRow>
+
+//         {/* صف is_clean */}
+//         <TableRow>
+//           <TableCell sx={{ color: "#b68866" }}>Is Clean</TableCell>
+//           <TableCell sx={{ color: "#ffffff" }}>
+//             {reportData.is_clean ? "Yes" : "No"}
+//           </TableCell>
+//           <TableCell sx={{ color: "#ffffff" }}>—</TableCell>
+//         </TableRow>
+//       </TableBody>
+//     </Table>
+//   </Paper>
+// )}
+
+//     </Box>
+//   );
+// };
+
+// export default VideoUploadAnalysis;
+// import React, { useState } from "react";
+// import {
+//   Box, Grid, Typography, Paper,
+//   Table, TableBody, TableCell, TableHead, TableRow,
+//   TextField, Button, LinearProgress
+// } from "@mui/material";
+
+// const VideoUploadAnalysis = () => {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [token, setToken] = useState("");
+//   const [videoFile, setVideoFile] = useState(null);
+//   const [videoURL, setVideoURL] = useState(null);
+//   const [analysisStarted, setAnalysisStarted] = useState(false);
+//   const [progress, setProgress] = useState(0);
+//   const [violations, setViolations] = useState([]);
+//   const [reportData, setReportData] = useState(null); // ✔ أهم إضافة
+//   const [errorMessage, setErrorMessage] = useState("");
+
+//   // -------------------- Login --------------------
+//   const handleLogin = async () => {
+//     setErrorMessage("");
+//     if (!email || !password) {
+//       setErrorMessage("Please enter email and password.");
+//       return;
+//     }
+
+//     try {
+//       const response = await fetch(
+//         "https://depi-final-project-production.up.railway.app/auth/login",
+//         {
+//           method: "POST",
+//           headers: { "Content-Type": "application/json" },
+//           body: JSON.stringify({ email, password }),
+//         }
+//       );
+
+//       if (!response.ok) {
+//         const text = await response.text();
+//         throw new Error(`Login failed: ${response.status} ${text}`);
+//       }
+
+//       const data = await response.json();
+//       console.log("Login response:", data);
+//       setToken(data.access_token);
+//       setErrorMessage("Login successful!");
+//     } catch (err) {
+//       console.error(err);
+//       setErrorMessage(err.message);
+//     }
+//   };
+
+//   // -------------------- Handle video upload --------------------
+//   const handleUpload = (e) => {
+//     const file = e.target.files[0];
+//     if (file) {
+//       setVideoFile(file);
+//       setVideoURL(URL.createObjectURL(file));
+//       setViolations([]);
+//       setReportData(null);
+//       setAnalysisStarted(false);
+//       setProgress(0);
+//       setErrorMessage("");
+//     }
+//   };
+
+//   // -------------------- Start analysis --------------------
+//   const startAnalysis = async () => {
+//     if (!videoFile) {
+//       setErrorMessage("Please upload a video first.");
+//       return;
+//     }
+//     if (!token) {
+//       setErrorMessage("Please login first.");
+//       return;
+//     }
+
+//     setAnalysisStarted(true);
+//     setProgress(0);
+//     setViolations([]);
+//     setErrorMessage("");
+
+//     const formData = new FormData();
+//     formData.append("video", videoFile);
+
+//     // Start simulated progress
+//     let prog = 0;
+//     const interval = setInterval(() => {
+//       prog += 5;
+//       if (prog > 95) prog = 95;
+//       setProgress(prog);
+//     }, 200);
+
+//     try {
+//       const response = await fetch(
+//         "https://depi-final-project-production.up.railway.app/auth/analyze-behavior",
+//         {
+//           method: "POST",
+//           headers: { Authorization: `Bearer ${token}` },
+//           body: formData,
+//         }
+//       );
+
+//       if (!response.ok) {
+//         const text = await response.text();
+//         throw new Error(`Server responded with: ${response.status} ${text}`);
+//       }
+
+//       const data = await response.json();
+//       console.log("Backend response:", data);
+
+//       clearInterval(interval);
+//       setProgress(100);
+
+//       // ✔ حفظ التقرير كامل
+//       setReportData(data.report_data);
+
+//       // تحويل report_data للجدول — ما عدا total_frames_processed و is_clean
+//       const violationsFromBackend = Object.entries(data.report_data || {})
+//         .filter(([key]) =>
+//           key !== "total_frames_processed" &&
+//           key !== "is_clean"
+//         )
+//         .map(([key, value], idx) => ({
+//           id: idx + 1,
+//           type: key,
+//           count: value.count,
+//           detected: value.detected ? "Yes" : "No",
+//           confidence: value.average_confidence,
+//         }));
+
+//       setViolations(violationsFromBackend);
+
+//     } catch (err) {
+//       clearInterval(interval);
+//       console.error(err);
+//       setErrorMessage("Error uploading or analyzing video: " + err.message);
+//       setAnalysisStarted(false);
+//       setProgress(0);
+//     }
+//   };
+
+//   const handleRefresh = () => window.location.reload();
+//   const handleResetAnalysis = () => {
+//     setAnalysisStarted(false);
+//     setProgress(0);
+//     setViolations([]);
+//     setReportData(null);
+//     setErrorMessage("");
+//   };
+
+  
+
+//   // -------------------- Render --------------------
+//   return (
+//     <Box sx={{ minHeight: "100vh", p: 3, backgroundColor: "#ffcb99" }}>
+
+//       {/* Header */}
+//       <Paper sx={{
+//         p: 2, mb: 3, display: "flex", justifyContent: "space-between",
+//         backgroundColor: "#191725", color: "#ffcb99", borderRadius: 2
+//       }}>
+//         <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+//           Video Upload & Analysis
+//         </Typography>
+
+//         <Box sx={{ display: "flex", gap: 1 }}>
+//           <Button variant="contained"
+//             sx={{ backgroundColor: "#b68866", "&:hover": { backgroundColor: "#9d0706" } }}
+//             onClick={handleRefresh}>Refresh</Button>
+
+//           <Button variant="contained"
+//             sx={{ backgroundColor: "#b68866", "&:hover": { backgroundColor: "#9d0706" } }}
+//             onClick={handleResetAnalysis}>Reset Analysis</Button>
+//         </Box>
+//       </Paper>
+
+//       {/* Login */}
+//       {!token && (
+//         <Paper sx={{ p: 2, mb: 3, display: "flex", gap: 2, flexWrap: "wrap", backgroundColor: "#ffe5cc" }}>
+          
+//           <TextField
+//             label="Email"
+//             value={email}
+//             onChange={e => setEmail(e.target.value)}
+//             variant="outlined"
+//             sx={{
+//               "& .MuiOutlinedInput-root": {
+//                 "& fieldset": { borderColor: "#9d0706", borderWidth: 2 },
+//                 "&:hover fieldset": { borderColor: "#b68866" },
+//                 "&.Mui-focused fieldset": { borderColor: "#9d0706" },
+//               },
+//               "& .MuiInputLabel-root": {
+//                 "&.Mui-focused": { color: "#9d0706" },
+//               },
+//             }}
+//           />
+
+//           <TextField
+//             label="Password"
+//             type="password"
+//             value={password}
+//             onChange={e => setPassword(e.target.value)}
+//             variant="outlined"
+//             sx={{
+//               "& .MuiOutlinedInput-root": {
+//                 "& fieldset": { borderColor: "#9d0706", borderWidth: 2 },
+//                 "&:hover fieldset": { borderColor: "#b68866" },
+//                 "&.Mui-focused fieldset": { borderColor: "#9d0706" },
+//               },
+//               "& .MuiInputLabel-root": {
+//                 "&.Mui-focused": { color: "#9d0706" },
+//               },
+//             }}
+//           />
+
+//           <Button variant="contained" sx={{ backgroundColor: "#9d0706" }} onClick={handleLogin}>
+//             Login
+//           </Button>
+
+//         </Paper>
+//       )}
+
+//       {/* Error message */}
+//       {errorMessage && (
+//         <Typography sx={{ color: "red", mb: 2 }}>{errorMessage}</Typography>
+//       )}
+
+//       {/* Upload & Start */}
+//       {token && (
+//         <Paper sx={{ p: 2, mb: 4, display: "flex", gap: 2, backgroundColor: "#ffe5cc" }}>
+//           <Button variant="contained" component="label" sx={{ backgroundColor: "#9d0706" }}>
+//             Upload Video
+//             <input type="file" hidden accept="video/*" onChange={handleUpload} />
+//           </Button>
+
+//           {videoFile && <Typography>{videoFile.name}</Typography>}
+
+//           <Button variant="contained" sx={{ backgroundColor: "#9d0706" }} onClick={startAnalysis}>
+//             Start Analysis
+//           </Button>
+//         </Paper>
+//       )}
+
+//       {/* Video Preview */}
+//       {videoURL && (
+//         <Paper sx={{ mb: 4, p: 1 }}>
+//           <video src={videoURL} controls autoPlay muted style={{ width: "100%", borderRadius: "10px" }} />
+//         </Paper>
+//       )}
+
+//       {/* Progress */}
+//       {analysisStarted && progress < 100 && (
+//         <Box sx={{ mb: 3 }}>
+//           <LinearProgress variant="determinate" value={progress} />
+//           <Typography sx={{ mt: 1 }}>Analysis Progress: {progress}%</Typography>
+//         </Box>
+//       )}
+
+//       {/* Table */}
+//       {violations.length > 0 && reportData && (
+//         <Paper>
+//           <Table sx={{ backgroundColor: "#191725" }}>
+//             <TableHead>
+//               <TableRow>
+//                 <TableCell sx={{ color: "#ffe5cc" }}>Type</TableCell>
+//                 <TableCell sx={{ color: "#ffe5cc" }}>Detected</TableCell>
+//                 <TableCell sx={{ color: "#ffe5cc" }}>Confidence</TableCell>
+//               </TableRow>
+//             </TableHead>
+
+//             <TableBody>
+//               {/* Rows الأساسية */}
+//               {violations.map((v) => (
+//                 <TableRow key={v.id}>
+//                   <TableCell sx={{ color: "#b68866" }}>{v.type}</TableCell>
+//                   <TableCell sx={{ color: "#ffffff" }}>{v.detected}</TableCell>
+//                   <TableCell sx={{ color: "#ffffff" }}>{v.confidence}</TableCell>
+//                 </TableRow>
+//               ))}
+
+//               {/* Total frames */}
+//               <TableRow>
+//                 <TableCell sx={{ color: "#b68866" }}>Total Frames Processed</TableCell>
+//                 <TableCell sx={{ color: "#ffffff" }}>{reportData.total_frames_processed}</TableCell>
+//                 <TableCell sx={{ color: "#ffffff" }}>—</TableCell>
+//               </TableRow>
+
+//               {/* Is Clean */}
+
+//             </TableBody>
+//           </Table>
+//         </Paper>
+//       )}
+
+//     </Box>
+//   );
+// };
+
+// export default VideoUploadAnalysis;
+
 import React, { useState } from "react";
 import {
   Box, Grid, Typography, Paper,
@@ -1466,6 +2040,7 @@ const VideoUploadAnalysis = () => {
   const [analysisStarted, setAnalysisStarted] = useState(false);
   const [progress, setProgress] = useState(0);
   const [violations, setViolations] = useState([]);
+  const [reportData, setReportData] = useState(null); // <<===== NEW
   const [errorMessage, setErrorMessage] = useState("");
 
   // -------------------- Login --------------------
@@ -1478,7 +2053,7 @@ const VideoUploadAnalysis = () => {
 
     try {
       const response = await fetch(
-        "https://depi-final-project-production.up.railway.app/auth/login",
+        "https://marowael-depi.hf.space/auth/login",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1492,29 +2067,28 @@ const VideoUploadAnalysis = () => {
       }
 
       const data = await response.json();
-      console.log("Login response:", data);
       setToken(data.access_token);
       setErrorMessage("Login successful!");
     } catch (err) {
-      console.error(err);
       setErrorMessage(err.message);
     }
   };
 
-  // -------------------- Handle video upload --------------------
+  // -------------------- Upload --------------------
   const handleUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setVideoFile(file);
       setVideoURL(URL.createObjectURL(file));
       setViolations([]);
+      setReportData(null);
       setAnalysisStarted(false);
       setProgress(0);
       setErrorMessage("");
     }
   };
 
-  // -------------------- Start analysis --------------------
+  // -------------------- Analysis --------------------
   const startAnalysis = async () => {
     if (!videoFile) {
       setErrorMessage("Please upload a video first.");
@@ -1528,58 +2102,55 @@ const VideoUploadAnalysis = () => {
     setAnalysisStarted(true);
     setProgress(0);
     setViolations([]);
-    setErrorMessage("");
+    setReportData(null);
 
     const formData = new FormData();
     formData.append("video", videoFile);
 
-    // Start simulated progress
     let prog = 0;
     const interval = setInterval(() => {
       prog += 5;
-      if (prog > 95) prog = 95; // وقف قبل الرد الفعلي
+      if (prog > 95) prog = 95;
       setProgress(prog);
     }, 200);
 
     try {
       const response = await fetch(
-        "https://depi-final-project-production.up.railway.app/auth/analyze-video",
+        "https://marowael-depi.hf.space/analyze-behavior",
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
           body: formData,
         }
       );
 
       if (!response.ok) {
         const text = await response.text();
-        throw new Error(`Server responded with status ${response.status}: ${text}`);
+        throw new Error("Server error: " + text);
       }
 
       const data = await response.json();
-      console.log("Backend response:", data);
 
       clearInterval(interval);
       setProgress(100);
 
-      // تحويل report_data للجدول
+      // Save full report data
+      setReportData(data.report_data);
+
       const violationsFromBackend = Object.entries(data.report_data || {})
-        .filter(([key]) => key !== "total_frames_processes")
+        .filter(([k]) => !["total_frames_processed", "is_clean"].includes(k))
         .map(([key, value], idx) => ({
           id: idx + 1,
           type: key,
-          count: value.count,
           detected: value.detected ? "Yes" : "No",
           confidence: value.average_confidence,
         }));
 
       setViolations(violationsFromBackend);
+
     } catch (err) {
       clearInterval(interval);
-      console.error(err);
-      setErrorMessage("Error uploading or analyzing video: " + err.message);
+      setErrorMessage("Error analyzing video: " + err.message);
       setAnalysisStarted(false);
       setProgress(0);
     }
@@ -1590,67 +2161,80 @@ const VideoUploadAnalysis = () => {
     setAnalysisStarted(false);
     setProgress(0);
     setViolations([]);
+    setReportData(null);
     setErrorMessage("");
   };
 
-  // -------------------- Render --------------------
+  // -------------------- UI --------------------
   return (
     <Box sx={{ minHeight: "100vh", p: 3, backgroundColor: "#ffcb99" }}>
       {/* Header */}
       <Paper sx={{ p: 2, mb: 3, display: "flex", justifyContent: "space-between", backgroundColor: "#191725", color: "#ffcb99", borderRadius: 2 }}>
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>Video Upload & Analysis</Typography>
         <Box sx={{ display: "flex", gap: 1 }}>
-          <Button variant="contained" sx={{ backgroundColor: "#b68866"  ,"&:hover": { backgroundColor: "#9d0706" } }} onClick={handleRefresh}>Refresh</Button>
-          <Button variant="contained" sx={{ backgroundColor: "#b68866" ,"&:hover": { backgroundColor: "#9d0706" } }} onClick={handleResetAnalysis}>Reset Analysis</Button>
+          {/* <Button variant="contained" sx={{ backgroundColor: "#b68866" }} onClick={handleRefresh}>Refresh</Button>
+          <Button variant="contained" sx={{ backgroundColor: "#b68866" }} onClick={handleResetAnalysis}>Reset Analysis</Button> */}
+          <Button variant="contained" sx={{
+              backgroundColor: "#b68866",
+              "&:hover": {
+                backgroundColor: "#9d0706"  // اللون الجديد عند الـ hover
+              }
+            }} onClick={handleRefresh}>Refresh</Button>
+                    <Button variant="contained" sx={{
+              backgroundColor: "#b68866",
+              "&:hover": {
+                backgroundColor: "#9d0706"  // اللون الجديد عند الـ hover
+              }
+            }} onClick={handleResetAnalysis}>Reset Analysis</Button>
         </Box>
       </Paper>
 
       {/* Login */}
       {!token && (
         <Paper sx={{ p: 2, mb: 3, display: "flex", gap: 2, flexWrap: "wrap", backgroundColor: "#ffe5cc" }}>
+          {/* <TextField label="Email" value={email} onChange={e => setEmail(e.target.value)} />
+          <TextField label="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} /> */}
           <TextField
-  label="Email"
-  value={email}
-  onChange={e => setEmail(e.target.value)}
-  variant="outlined"
-  sx={{
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": { borderColor: "#9d0706", borderWidth: 2 },
-      "&:hover fieldset": { borderColor: "#b68866" },
-      "&.Mui-focused fieldset": { borderColor: "#9d0706" }, // لون البوردر عند التركيز
-    },
-    "& .MuiInputLabel-root": {
-      "&.Mui-focused": { color: "#9d0706" }, // لون اللابل عند التركيز
-    },
-  }}
-/>
-
-<TextField
-  label="Password"
-  type="password"
-  value={password}
-  onChange={e => setPassword(e.target.value)}
-  variant="outlined"
-  sx={{
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": { borderColor: "#9d0706", borderWidth: 2 },
-      "&:hover fieldset": { borderColor: "#b68866" },
-      "&.Mui-focused fieldset": { borderColor: "#9d0706" },
-    },
-    "& .MuiInputLabel-root": {
-      "&.Mui-focused": { color: "#9d0706" },
-    },
-  }}
-/>
-
+                                label="Email"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                variant="outlined"
+                                 sx={{
+                                   "& .MuiOutlinedInput-root": {
+                                     "& fieldset": { borderColor: "#9d0706", borderWidth: 2 },
+                                     "&:hover fieldset": { borderColor: "#b68866" },
+                                     "&.Mui-focused fieldset": { borderColor: "#9d0706" },
+                                  },
+                                  "& .MuiInputLabel-root": {
+                                    "&.Mui-focused": { color: "#9d0706" },
+                                  },
+                                }}
+                               />
+                    
+                              <TextField
+                                 label="Password"
+                                type="password"
+                                 value={password}
+                                 onChange={e => setPassword(e.target.value)}
+                                 variant="outlined"
+                                 sx={{
+                                   "& .MuiOutlinedInput-root": {
+                                     "& fieldset": { borderColor: "#9d0706", borderWidth: 2 },
+                                    "&:hover fieldset": { borderColor: "#b68866" },
+                                     "&.Mui-focused fieldset": { borderColor: "#9d0706" },
+                                   },
+                                   "& .MuiInputLabel-root": {
+                                     "&.Mui-focused": { color: "#9d0706" },
+                                   },
+                                 }}
+                              />
           <Button variant="contained" sx={{ backgroundColor: "#9d0706" }} onClick={handleLogin}>Login</Button>
         </Paper>
       )}
 
-      {/* Error message */}
       {errorMessage && <Typography sx={{ color: "red", mb: 2 }}>{errorMessage}</Typography>}
 
-      {/* Upload & Start */}
+      {/* Upload */}
       {token && (
         <Paper sx={{ p: 2, mb: 4, display: "flex", gap: 2, backgroundColor: "#ffe5cc" }}>
           <Button variant="contained" component="label" sx={{ backgroundColor: "#9d0706" }}>
@@ -1662,8 +2246,12 @@ const VideoUploadAnalysis = () => {
         </Paper>
       )}
 
-      {/* Video Preview */}
-      {videoURL && <Paper sx={{ mb: 4, p: 1 }}><video src={videoURL} controls autoPlay muted style={{ width: "100%", borderRadius: "10px" }} /></Paper>}
+      {/* Video */}
+      {videoURL && (
+        <Paper sx={{ mb: 4, p: 1 }}>
+          <video src={videoURL} controls autoPlay muted style={{ width: "100%", borderRadius: "10px" }} />
+        </Paper>
+      )}
 
       {/* Progress */}
       {analysisStarted && progress < 100 && (
@@ -1674,32 +2262,49 @@ const VideoUploadAnalysis = () => {
       )}
 
       {/* Table */}
-      {violations.length > 0 && (
+      {reportData && (
         <Paper>
-  <Table sx={{ backgroundColor: "#191725" }}>
-    <TableHead>
-      <TableRow>
-        <TableCell sx={{ color: "#ffe5cc" }}>Type</TableCell>
-        {/* شيلنا عمود Count */}
-        <TableCell sx={{ color: "#ffe5cc" }}>Detected</TableCell>
-        <TableCell sx={{ color: "#ffe5cc" }}>Confidence</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {violations.slice(0, -1).map(v => ( // slice(0, -1) يشيل آخر عنصر
-        <TableRow key={v.id}>
-          <TableCell sx={{ color: "#b68866" }}>{v.type}</TableCell>
-          <TableCell sx={{ color: "#ffffff" }}>{v.detected}</TableCell>
-          <TableCell sx={{ color: "#ffffff" }}>{v.confidence}</TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>
-</Paper>
+          <Table sx={{ backgroundColor: "#191725" }}>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ color: "#ffe5cc" }}>Type</TableCell>
+                <TableCell sx={{ color: "#ffe5cc" }}>Detected</TableCell>
+                <TableCell sx={{ color: "#ffe5cc" }}>Confidence</TableCell>
+              </TableRow>
+            </TableHead>
 
+            <TableBody>
+              {violations.map(v => (
+                <TableRow key={v.id}>
+                  <TableCell sx={{ color: "#b68866" }}>{v.type}</TableCell>
+                  <TableCell sx={{ color: "#ffffff" }}>{v.detected}</TableCell>
+                  <TableCell sx={{ color: "#ffffff" }}>{v.confidence}</TableCell>
+                </TableRow>
+              ))}
+
+              {/* Total Frames */}
+              <TableRow>
+                <TableCell sx={{ color: "#b68866" }}>Total Frames Processed</TableCell>
+                <TableCell sx={{ color: "#ffffff" }}>{reportData.total_frames_processed}</TableCell>
+                <TableCell sx={{ color: "#ffffff" }}>—</TableCell>
+              </TableRow>
+
+              {/* Is Clean */}
+              <TableRow>
+                <TableCell sx={{ color: "#b68866" }}>Is Clean</TableCell>
+                <TableCell sx={{ color: "#ffffff" }}>
+                  {reportData.is_clean ? "Yes" : "No"}
+                </TableCell>
+                <TableCell sx={{ color: "#ffffff" }}>—</TableCell>
+              </TableRow>
+
+            </TableBody>
+          </Table>
+        </Paper>
       )}
     </Box>
   );
 };
 
 export default VideoUploadAnalysis;
+
