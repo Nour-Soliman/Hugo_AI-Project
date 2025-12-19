@@ -47,7 +47,7 @@ const Home = () => {
         flexDirection: "column",
         alignItems: "center",
         pt: 8,
-        backgroundImage: "url('/src/assets/photo_2025-10-09_17-20-53.jpg')",
+        backgroundImage: "url('/public/photo_2025-10-09_17-20-53.jpg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
